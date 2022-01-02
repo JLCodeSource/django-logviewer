@@ -4,5 +4,14 @@ from .models import Asset, Log
 
 # Register your models here.
 
-admin.site.register(Asset)
-admin.site.register(Log)
+
+class LogInline(admin.TabularInline):
+    model = Log
+    extra = 1
+
+
+class AssetAdmin(admin.ModelAdmin):
+    inlines = [LogInline]
+
+
+admin.site.register(Asset, AssetAdmin)
