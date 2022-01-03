@@ -22,6 +22,11 @@ class Asset(models.Model):
     def __str__(self):
         return self.name
 
+    def get_latest_log(self):
+        a = Asset.objects.get(pk=self.pk)
+        logs = a.log_set.get(pk=1)
+        return logs
+
 
 class Log(models.Model):
     AGENTS = (
@@ -61,6 +66,8 @@ class Log(models.Model):
     message = models.CharField(max_length=255)
     raw_data = models.CharField(max_length=255)
     fqdd = models.CharField(max_length=255)
+    resolved = models.BooleanField(default=False)
 
     def __str__(self):
-        return str(self.seqnumber)
+        out = str(self.seqnumber) + ": " + self.severity + " - " + self.message
+        return out

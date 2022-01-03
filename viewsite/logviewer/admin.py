@@ -12,6 +12,7 @@ class LogInline(admin.TabularInline):
 
 class AssetAdmin(admin.ModelAdmin):
     inlines = [LogInline]
+    list_display = ("name", "get_latest_log")
 
 
 admin.site.register(Asset, AssetAdmin)
