@@ -14,6 +14,8 @@ class AssetAdmin(admin.ModelAdmin):
     inlines = [LogInline]
     list_display = (
         "name",
+        "site",
+        "phase",
         "get_latest_timestamp",
         "get_latest_severity",
         "get_latest_message",
@@ -22,7 +24,7 @@ class AssetAdmin(admin.ModelAdmin):
     Need to add custom filter
     https://docs.djangoproject.com/en/4.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.list_filter
     """
-    list_filter = ["log__severity", "log__resolved"]
+    list_filter = ["site", "phase", "log__severity", "log__resolved"]
 
 
 admin.site.register(Asset, AssetAdmin)
