@@ -23,12 +23,33 @@ class Asset(models.Model):
         return self.name
 
     def get_latest_log(self):
-        a = Asset.objects.get(pk=self.pk)
-        logs = a.log_set.get(pk=1)
-        return logs
+        """Get latest log either critical or warning where not resolved."""
+        severity = ["Critical", "Warning", "Info"]
+
+        for bool in [False, True]:
+            for sev in severity:
+                logs = Log.objects.filter(asset=self.pk, severity=sev, resolved=bool)
+                if logs.exists():
+                    log = logs.latest()
+                    return log.id
+
+        return -1
+
+    def get_latest_severity(self):
+        logid = self.get_latest_log()
+        if logid == -1:
+            return "-"
+        else:
+            log = Log.objects.filter(id=logid).latest()
+            return log.severity
 
 
 class Log(models.Model):
+    """Log provides the model for logs."""
+
+    """TODO: Update below to 'Enumeration Types'.
+    https://docs.djangoproject.com/en/4.0/ref/models/fields/
+    """
     AGENTS = (
         ("UEFI_SS_USC", "UEFI_SS_USC"),
         ("CusOsUp", "CusOsUp"),
@@ -52,8 +73,8 @@ class Log(models.Model):
         ("Audit", "Audit"),
     )
     SEVERITY = (
-        ("Warning", "Warning"),
         ("Critical", "Critical"),
+        ("Warning", "Warning"),
         ("Info", "Info"),
     )
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
@@ -68,6 +89,12 @@ class Log(models.Model):
     fqdd = models.CharField(max_length=255)
     resolved = models.BooleanField(default=False)
 
+    class Meta:
+        get_latest_by = "timestamp"
+
     def __str__(self):
         out = str(self.seqnumber) + ": " + self.severity + " - " + self.message
         return out
+
+    def is_resolved(self):
+        return self.resolved
