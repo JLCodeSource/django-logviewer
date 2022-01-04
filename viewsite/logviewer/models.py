@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.db import models
 from django.db.models.fields import IPAddressField
 
@@ -22,6 +23,7 @@ class Asset(models.Model):
     def __str__(self):
         return self.name
 
+    @admin.display(description="log")
     def get_latest_log(self):
         """Get latest log either critical or warning where not resolved."""
         severity = ["Critical", "Warning", "Info"]
@@ -32,9 +34,9 @@ class Asset(models.Model):
                 if logs.exists():
                     log = logs.latest()
                     return log.id
-
         return -1
 
+    @admin.display(description="severity")
     def get_latest_severity(self):
         logid = self.get_latest_log()
         if logid == -1:
@@ -42,6 +44,24 @@ class Asset(models.Model):
         else:
             log = Log.objects.filter(id=logid).latest()
             return log.severity
+
+    @admin.display(description="timestamp")
+    def get_latest_timestamp(self):
+        logid = self.get_latest_log()
+        if logid == -1:
+            return "-"
+        else:
+            log = Log.objects.filter(id=logid).latest()
+            return log.timestamp
+
+    @admin.display(description="message")
+    def get_latest_message(self):
+        logid = self.get_latest_log()
+        if logid == -1:
+            return "-"
+        else:
+            log = Log.objects.filter(id=logid).latest()
+            return log.message
 
 
 class Log(models.Model):
