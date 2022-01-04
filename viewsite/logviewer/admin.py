@@ -18,6 +18,11 @@ class AssetAdmin(admin.ModelAdmin):
         "get_latest_severity",
         "get_latest_message",
     )
+    """
+    Need to add custom filter
+    https://docs.djangoproject.com/en/4.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.list_filter
+    """
+    list_filter = ["log__severity", "log__resolved"]
 
 
 admin.site.register(Asset, AssetAdmin)

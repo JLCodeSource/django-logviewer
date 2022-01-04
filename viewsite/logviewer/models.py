@@ -36,7 +36,7 @@ class Asset(models.Model):
                     return log.id
         return -1
 
-    @admin.display(description="severity")
+    @admin.display(description="severity", ordering="severity")
     def get_latest_severity(self):
         logid = self.get_latest_log()
         if logid == -1:
