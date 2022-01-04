@@ -15,10 +15,15 @@ class Asset(models.Model):
         ("TOT", "Totowa"),
         ("PSC", "Piscataway"),
     )
+    PHASES = (
+        (1, "Phase 1"),
+        (2, "Phase 2"),
+    )
     name = models.CharField(max_length=30)
     IP = models.GenericIPAddressField()
     type = models.CharField(max_length=8, choices=TYPES)
     site = models.CharField(max_length=10, choices=SITES)
+    phase = models.SmallIntegerField(choices=PHASES)
 
     def __str__(self):
         return self.name
