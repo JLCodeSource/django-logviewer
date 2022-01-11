@@ -35,7 +35,8 @@ class Asset(models.Model):
 
         for bool in [False, True]:
             for sev in severity:
-                logs = Log.objects.filter(asset=self.pk, severity=sev, resolved=bool)
+                logs = Log.objects.filter(
+                    asset=self.pk, severity=sev, resolved=bool)
                 if logs.exists():
                     log = logs.latest()
                     return log.id
@@ -103,22 +104,26 @@ class Log(models.Model):
         ("Info", "Info"),
     )
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
-    seqnumber = models.PositiveSmallIntegerField()
-    message_id = models.CharField(max_length=6)
-    agent_id = models.CharField(max_length=14, choices=AGENTS)
-    category = models.CharField(max_length=9, choices=CATEGORIES)
-    severity = models.CharField(max_length=8, choices=SEVERITY)
-    timestamp = models.DateTimeField()
-    message = models.CharField(max_length=255)
-    raw_data = models.CharField(max_length=255)
-    fqdd = models.CharField(max_length=255)
+    seqnumber = models.PositiveSmallIntegerField(editable=False)
+    message_id = models.CharField(max_length=6, blank=True, editable=False)
+    agent_id = models.CharField(
+        max_length=14, choices=AGENTS, blank=True, editable=False)
+    category = models.CharField(
+        max_length=9, choices=CATEGORIES, blank=True, editable=False)
+    severity = models.CharField(
+        max_length=8, choices=SEVERITY, blank=True, editable=False)
+    timestamp = models.DateTimeField(blank=True, editable=False)
+    message = models.CharField(max_length=255, blank=True, editable=False)
+    raw_data = models.CharField(max_length=255, blank=True, editable=False)
+    fqdd = models.CharField(max_length=255, blank=True, editable=False)
     resolved = models.BooleanField(default=False)
 
     class Meta:
         get_latest_by = "timestamp"
 
     def __str__(self):
-        out = str(self.seqnumber) + ": " + self.severity + " - " + self.message
+        out = str(self.timestamp) + ": " + str(self.seqnumber) + \
+            " - " + self.severity + " - " + self.message
         return out
 
     def is_resolved(self):
