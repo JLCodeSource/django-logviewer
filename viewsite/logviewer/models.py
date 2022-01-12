@@ -139,14 +139,14 @@ class Log(models.Model):
 
     def __str__(self):
         timestamp = self.timestamp
-        formatted_timestamp = dateformat.format(timestamp, "Y-m-d H:m")
+        formatted_timestamp = dateformat.format(timestamp, "Y-M-d H:i:s")
         out = (
             formatted_timestamp
-            + ": "
+            + ": Id:"
             + str(self.id)
-            + "-"
+            + " Seq:"
             + str(self.seqnumber)
-            + " - "
+            + " "
             + self.severity
             + " - "
             + self.message

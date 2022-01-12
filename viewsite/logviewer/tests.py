@@ -44,7 +44,7 @@ class LogModelTests(TestCase):
         severity = "Critical"
         seqnumber = 1
         timestamp = timezone.now()
-        formatted_timestamp = dateformat.format(timestamp, "Y-m-d H:m")
+        formatted_timestamp = dateformat.format(timestamp, "Y-M-d H:i:s")
         message = "Critical message"
         asset = Asset.objects.get(pk=pk)
         log = Log.objects.create(
@@ -59,11 +59,11 @@ class LogModelTests(TestCase):
 
         out = (
             str(formatted_timestamp)
-            + ": "
+            + ": Id:"
             + str(id)
-            + "-"
+            + " Seq:"
             + str(seqnumber)
-            + " - "
+            + " "
             + severity
             + " - "
             + message
