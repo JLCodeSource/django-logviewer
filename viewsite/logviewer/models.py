@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.db import models
 from django.db.models.fields import IPAddressField
+from django.utils import timezone, dateformat
 
 # Create your models here.
 
@@ -122,8 +123,10 @@ class Log(models.Model):
         get_latest_by = "timestamp"
 
     def __str__(self):
-        out = str(self.timestamp) + ": " + str(self.seqnumber) + \
-            " - " + self.severity + " - " + self.message
+        timestamp = self.timestamp
+        formatted_timestamp = dateformat.format(timestamp, 'Y-m-d H:m')
+        out = formatted_timestamp + ": " + \
+            str(self.seqnumber) + " - " + self.severity + " - " + self.message
         return out
 
     def is_resolved(self):
