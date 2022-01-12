@@ -28,13 +28,15 @@ class LogModelTests(TestCase):
         timestamp = timezone.now()
         formatted_timestamp = dateformat.format(timestamp, 'Y-m-d H:m')
         message = "Critical message"
-        out = str(formatted_timestamp) + ": " + str(seqnumber) + \
-            " - " + severity + " - " + message
         asset = Asset.objects.get(pk=pk)
         log = Log.objects.create(asset=asset,
                                  seqnumber=seqnumber, timestamp=timestamp, severity=severity,
                                  message=message)
         log.save()
+        id = log.id
+
+        out = str(formatted_timestamp) + ": " + str(id) + "-" + str(seqnumber) + \
+            " - " + severity + " - " + message
 
         log_str = str(Log.objects.filter(asset=asset).latest())
 
@@ -63,8 +65,9 @@ class LogModelTests(TestCase):
                                  seqnumber=seqnumber, timestamp=timestamp, severity=severity,
                                  message=message)
         log.save()
+        id = log.id
 
-        out = str(formatted_timestamp) + ": " + str(seqnumber) + \
+        out = str(formatted_timestamp) + ": " + str(id) + "-" + str(seqnumber) + \
             " - " + severity + " - " + message
 
         log_str = str(Log.objects.filter(asset=pk).latest())
@@ -73,7 +76,7 @@ class LogModelTests(TestCase):
 
     def test_log_get_latest_critical_unresolved_log(self):
         """
-        get_latest_log should return the id of the latest critical severity log.
+        get_latest_log should return the id of the latest unresolved critical severity log.
         """
         pk = 1
         severity = "Critical"
@@ -82,23 +85,55 @@ class LogModelTests(TestCase):
         formatted_timestamp = dateformat.format(timestamp, 'Y-m-d H:m')
         message = "Critical message"
         asset = Asset.objects.get(pk=pk)
-        log = Log.objects.create(asset=asset,
-                                 seqnumber=seqnumber, timestamp=timestamp, severity=severity,
-                                 message=message)
-        log.save()
+        asset.log_set.create(asset=asset,
+                             seqnumber=seqnumber, timestamp=timestamp, severity=severity,
+                             message=message)
 
-        seqnumber = 2
         timestamp = timezone.now()
         resolved = True
-        log = Log.objects.create(asset=asset,
-                                 seqnumber=seqnumber, timestamp=timestamp, severity=severity,
-                                 message=message, resolved=resolved)
-        log.save()
+        asset.log_set.create(asset=asset,
+                             seqnumber=seqnumber, timestamp=timestamp, severity=severity,
+                             message=message, resolved=resolved)
+        asset.save()
 
         log = asset.get_latest_log()
         log = Log.objects.get(id=log)
+        id = log.id
 
-        out = str(formatted_timestamp) + ": " + "1" + \
+        out = str(formatted_timestamp) + ": " + str(id) + "-" + str(seqnumber) + \
+            " - " + severity + " - " + message
+
+        self.assertEqual(str(log), out)
+
+    def test_log_get_latest_warning_unresolved_log(self):
+        """
+        get_latest_log should return the id of the latest unresolved Warning severity log, 
+        even if there are resolved Critical severity logs.
+        """
+        pk = 1
+        severity = "Warning"
+        seqnumber = 1
+        timestamp = timezone.now()
+        formatted_timestamp = dateformat.format(timestamp, 'Y-m-d H:m')
+        message = "Warning message"
+        asset = Asset.objects.get(pk=pk)
+        asset.log_set.create(asset=asset,
+                             seqnumber=seqnumber, timestamp=timestamp, severity=severity,
+                             message=message)
+
+        timestamp = timezone.now()
+        resolved = True
+        asset.log_set.create(asset=asset,
+                             seqnumber=seqnumber, timestamp=timestamp, severity="Critical",
+                             message=message, resolved=resolved)
+        asset.save()
+
+        log = asset.get_latest_log()
+        log = Log.objects.get(id=log)
+        id = log.id
+
+        out = str(formatted_timestamp) + ": " + str(id) + "-" + \
+            str(seqnumber) + \
             " - " + severity + " - " + message
 
         self.assertEqual(str(log), out)

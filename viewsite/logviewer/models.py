@@ -126,7 +126,8 @@ class Log(models.Model):
         timestamp = self.timestamp
         formatted_timestamp = dateformat.format(timestamp, 'Y-m-d H:m')
         out = formatted_timestamp + ": " + \
-            str(self.seqnumber) + " - " + self.severity + " - " + self.message
+            str(self.id) + "-" + str(self.seqnumber) + " - " + \
+            self.severity + " - " + self.message
         return out
 
     def is_resolved(self):
