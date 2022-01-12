@@ -37,7 +37,7 @@ class Asset(models.Model):
         for bool in [False, True]:
             for sev in severity:
                 logs = Log.objects.filter(
-                    asset=self.pk, severity=sev, resolved=bool)
+                    asset=self, severity=sev, resolved=bool)
                 if logs.exists():
                     log = logs.latest()
                     return log.id

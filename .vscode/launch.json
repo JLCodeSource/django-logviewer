@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/viewsite/manage.py",
             "args": [
-                "runserver"
+                "shell"
             ],
             "django": true
         }
