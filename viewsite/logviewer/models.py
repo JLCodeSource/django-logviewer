@@ -32,15 +32,27 @@ class Asset(models.Model):
     @admin.display(description="log")
     def get_latest_log(self):
         """Get latest log either critical or warning where not resolved."""
-        severity = ["Critical", "Warning", "Info"]
+        severity = ["Critical", "Warning"]
 
         for bool in [False, True]:
             for sev in severity:
                 logs = Log.objects.filter(
-                    asset=self, severity=sev, resolved=bool)
+                    asset=self,
+                    severity=sev,
+                    resolved=bool,
+                )
                 if logs.exists():
                     log = logs.latest()
                     return log.id
+        for bool in [False, True]:
+            logs = Log.objects.filter(
+                asset=self,
+                severity="Info",
+                resolved=bool,
+            )
+            if logs.exists():
+                log = logs.latest()
+                return log.id
         return -1
 
     @admin.display(description="severity", ordering="severity")
@@ -108,11 +120,14 @@ class Log(models.Model):
     seqnumber = models.PositiveSmallIntegerField(editable=False)
     message_id = models.CharField(max_length=6, blank=True, editable=False)
     agent_id = models.CharField(
-        max_length=14, choices=AGENTS, blank=True, editable=False)
+        max_length=14, choices=AGENTS, blank=True, editable=False
+    )
     category = models.CharField(
-        max_length=9, choices=CATEGORIES, blank=True, editable=False)
+        max_length=9, choices=CATEGORIES, blank=True, editable=False
+    )
     severity = models.CharField(
-        max_length=8, choices=SEVERITY, blank=True, editable=False)
+        max_length=8, choices=SEVERITY, blank=True, editable=False
+    )
     timestamp = models.DateTimeField(blank=True, editable=False)
     message = models.CharField(max_length=255, blank=True, editable=False)
     raw_data = models.CharField(max_length=255, blank=True, editable=False)
@@ -124,10 +139,18 @@ class Log(models.Model):
 
     def __str__(self):
         timestamp = self.timestamp
-        formatted_timestamp = dateformat.format(timestamp, 'Y-m-d H:m')
-        out = formatted_timestamp + ": " + \
-            str(self.id) + "-" + str(self.seqnumber) + " - " + \
-            self.severity + " - " + self.message
+        formatted_timestamp = dateformat.format(timestamp, "Y-m-d H:m")
+        out = (
+            formatted_timestamp
+            + ": "
+            + str(self.id)
+            + "-"
+            + str(self.seqnumber)
+            + " - "
+            + self.severity
+            + " - "
+            + self.message
+        )
         return out
 
     def is_resolved(self):

@@ -1,6 +1,6 @@
 from django.utils import timezone, dateformat
 from django.test import TestCase
-from .models import Asset, Log
+from logviewer.models import Asset, Log
 
 # Create your tests here.
 
@@ -159,14 +159,45 @@ class LogModelTests(TestCase):
         )
         log.save()
         timestamp = timezone.now()
-        resolved = True
         resolved_log = Log.objects.create(
             asset=asset,
             seqnumber=seqnumber,
             timestamp=timestamp,
             severity="Critical",
             message=message,
-            resolved=resolved,
+            resolved=True,
+        )
+        resolved_log.save()
+        id = log.id
+
+        self.assertEqual(asset.get_latest_log(), id)
+
+    def test_log_get_latest_warning_unresolved_log(self):
+        """
+        get_latest_log should return the id of the latest unresolved Warning
+        severity log, even if there are unresolved Information severity logs.
+        """
+        pk = 1
+        severity = "Warning"
+        seqnumber = 1
+        timestamp = timezone.now()
+        message = "Information message"
+        asset = Asset.objects.get(pk=pk)
+        log = Log.objects.create(
+            asset=asset,
+            seqnumber=seqnumber,
+            timestamp=timestamp,
+            severity=severity,
+            message=message,
+        )
+        log.save()
+        timestamp = timezone.now()
+        resolved_log = Log.objects.create(
+            asset=asset,
+            seqnumber=seqnumber,
+            timestamp=timestamp,
+            severity="Info",
+            message=message,
         )
         resolved_log.save()
         id = log.id
