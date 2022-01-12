@@ -172,7 +172,7 @@ class LogModelTests(TestCase):
 
         self.assertEqual(asset.get_latest_log(), id)
 
-    def test_log_get_latest_warning_unresolved_log(self):
+    def test_log_get_latest_resolved_warning_with_unresolved_info_log(self):
         """
         get_latest_log should return the id of the latest unresolved Warning
         severity log, even if there are unresolved Information severity logs.
@@ -189,6 +189,7 @@ class LogModelTests(TestCase):
             timestamp=timestamp,
             severity=severity,
             message=message,
+            resolved=True,
         )
         log.save()
         timestamp = timezone.now()
