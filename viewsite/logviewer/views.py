@@ -1,8 +1,11 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from rest_framework import viewsets
+from rest_framework.decorators import api_view
 from rest_framework.parsers import JSONParser
 from rest_framework.serializers import Serializer
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from rest_framework import generics
 from logviewer.models import Asset, Log
 from logviewer.serializers import AssetSerializer, LogSerializer
@@ -13,21 +16,21 @@ def index(request):
     return HttpResponse("Hello, World")
 
 
-class AssetList(generics.ListCreateAPIView):
+@api_view(["GET"])
+def api_root(request, format=None):
+    return Response(
+        {
+            "assets": reverse("asset-list", request=request, format=format),
+            "logs": reverse("log-list", request=request, format=format),
+        }
+    )
+
+
+class AssetViewSet(viewsets.ModelViewSet):
     queryset = Asset.objects.all()
     serializer_class = AssetSerializer
 
 
-class AssetDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Asset.objects.all()
-    serializer_class = AssetSerializer
-
-
-class LogList(generics.ListCreateAPIView):
-    queryset = Log.objects.all()
-    serializer_class = LogSerializer
-
-
-class LogDetail(generics.RetrieveUpdateDestroyAPIView):
+class LogViewSet(viewsets.ModelViewSet):
     queryset = Log.objects.all()
     serializer_class = LogSerializer
