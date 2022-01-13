@@ -3,6 +3,7 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from rest_framework.serializers import Serializer
+from rest_framework import generics
 from logviewer.models import Asset, Log
 from logviewer.serializers import AssetSerializer, LogSerializer
 
@@ -12,41 +13,21 @@ def index(request):
     return HttpResponse("Hello, World")
 
 
-@csrf_exempt
-def asset_list(request):
-    if request.method == "GET":
-        assets = Asset.objects.all()
-        serializer = AssetSerializer(assets, many=True)
-        return JsonResponse(serializer.data, safe=False)
-
-    elif request.method == "POST":
-        data = JSONParser().parse(request)
-        serializer = AssetSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse(serializer.data, status=201)
-        return JsonResponse(serializer.errors, status=400)
+class AssetList(generics.ListCreateAPIView):
+    queryset = Asset.objects.all()
+    serializer_class = AssetSerializer
 
 
-@csrf_exempt
-def asset_detail(request, pk):
-    try:
-        asset = Asset.objects.get(pk=pk)
-    except Asset.DoesNotExist:
-        return HttpResponse(status=404)
+class AssetDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Asset.objects.all()
+    serializer_class = AssetSerializer
 
-    if request.method == "GET":
-        serializer = AssetSerializer(asset)
-        return JsonResponse(serializer.data)
 
-    elif request.method == "PUT":
-        data = JSONParser().parse(request)
-        serializer = AssetSerializer(asset, data)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse(serializer.data)
-        return JsonResponse(serializer.errors, status=400)
+class LogList(generics.ListCreateAPIView):
+    queryset = Log.objects.all()
+    serializer_class = LogSerializer
 
-    elif request.method == "DELETE":
-        asset.delete()
-        return HttpResponse(status=204)
+
+class LogDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Log.objects.all()
+    serializer_class = LogSerializer
