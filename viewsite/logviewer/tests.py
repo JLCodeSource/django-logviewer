@@ -1,3 +1,4 @@
+import io
 from django.utils import timezone, dateformat
 from django.test import TestCase
 from django.contrib.auth.models import User
@@ -6,6 +7,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework import request
 from rest_framework.test import APITestCase, APIClient, APIRequestFactory
+from rest_framework.parsers import JSONParser
 import json
 import pytest
 
@@ -284,7 +286,6 @@ class AssetTestCase(APITestCase):
         test_url = reverse("log-list")
         pk = 1
         severity = "Warning"
-        timestamp = timezone.now()
         message = "Warning message"
         test_size = 1000
 
@@ -292,7 +293,7 @@ class AssetTestCase(APITestCase):
             {
                 "asset": pk,
                 "seqnumber": i,
-                "timestamp": str(timestamp),
+                "timestamp": str(timezone.now()),
                 "severity": severity,
                 "message": message,
             }
@@ -302,10 +303,12 @@ class AssetTestCase(APITestCase):
         # test auto setting sequence
         response = client.post(
             test_url,
-            data=json.dumps(data),
+            data=data,
             user=user,
             format="json",
         )
 
+        stream = io.BytesIO(response.content)
+        out = JSONParser().parse(stream)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(len(response.json) == test_size)
+        self.assertEqual(len(out), len(data))
