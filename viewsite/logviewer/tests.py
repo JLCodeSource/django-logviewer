@@ -1,11 +1,18 @@
 from django.utils import timezone, dateformat
 from django.test import TestCase
+from django.contrib.auth.models import User
 from logviewer.models import Asset, Log
+from django.urls import reverse
+from rest_framework import status
+from rest_framework import request
+from rest_framework.test import APITestCase, APIClient, APIRequestFactory
+import json
+import pytest
 
 # Create your tests here.
 
 
-class LogModelTests(TestCase):
+class AssetModelTests(TestCase):
     def setUp(self):
         Asset.objects.create(
             name="tot-n01",
@@ -35,6 +42,13 @@ class LogModelTests(TestCase):
             site="PSC",
             phase=1,
         )
+
+    def test_asset_string_output(self):
+        """
+        asset string output should display asset name.
+        """
+        asset = Asset.objects.get(pk=1)
+        self.assertEqual(str(asset), "tot-n01")
 
     def test_log_string_output(self):
         """
@@ -204,3 +218,57 @@ class LogModelTests(TestCase):
         id = log.id
 
         self.assertEqual(asset.get_latest_log(), id)
+
+
+class AssetTestCase(APITestCase):
+    def setUp(self):
+        asset = Asset.objects.create(
+            name="tot-n01",
+            IP="10.49.28.147",
+            type="SVR",
+            site="TOT",
+            phase=1,
+        )
+        Log.objects.create(
+            asset=asset,
+            seqnumber=1,
+            timestamp=timezone.now(),
+            severity="Info",
+            message="information message",
+        )
+        User.objects.create_user("admin", "admin@admin.com", "admin")
+
+    def test_get_logs(self):
+        client = APIClient()
+        test_url = "http://127.0.0.1:8000/logviewer/logs/"
+        response = client.get(test_url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_create_logs(self):
+        client = APIClient()
+        user = User.objects.get(username="admin")
+        user.is_staff = True
+        user.is_admin = True
+        user.is_superuser = True
+        user.save()
+        client.force_authenticate(user=user)
+        test_url = reverse("log-list")
+        pk = 1
+        severity = "Warning"
+        timestamp = timezone.now()
+        message = "Warning message"
+
+        response = client.post(
+            test_url,
+            data={
+                "asset": pk,
+                "seqnumber": 1,
+                "timestamp": str(timestamp),
+                "severity": severity,
+                "message": message,
+            },
+            user=user,
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)

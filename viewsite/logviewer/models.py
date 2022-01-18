@@ -117,21 +117,15 @@ class Log(models.Model):
         ("Info", "Info"),
     )
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
-    seqnumber = models.PositiveSmallIntegerField(editable=False)
-    message_id = models.CharField(max_length=6, blank=True, editable=False)
-    agent_id = models.CharField(
-        max_length=14, choices=AGENTS, blank=True, editable=False
-    )
-    category = models.CharField(
-        max_length=9, choices=CATEGORIES, blank=True, editable=False
-    )
-    severity = models.CharField(
-        max_length=8, choices=SEVERITY, blank=True, editable=False
-    )
-    timestamp = models.DateTimeField(blank=True, editable=False)
-    message = models.CharField(max_length=255, blank=True, editable=False)
-    raw_data = models.CharField(max_length=255, blank=True, editable=False)
-    fqdd = models.CharField(max_length=255, blank=True, editable=False)
+    seqnumber = models.PositiveSmallIntegerField(null=True, blank=True)
+    message_id = models.CharField(max_length=6, blank=True)
+    agent_id = models.CharField(max_length=14, choices=AGENTS, blank=True)
+    category = models.CharField(max_length=9, choices=CATEGORIES, blank=True)
+    severity = models.CharField(max_length=8, choices=SEVERITY, blank=True)
+    timestamp = models.DateTimeField(blank=True)
+    message = models.CharField(max_length=255, blank=True)
+    raw_data = models.CharField(max_length=255, blank=True)
+    fqdd = models.CharField(max_length=255, blank=True)
     resolved = models.BooleanField(default=False)
 
     class Meta:
