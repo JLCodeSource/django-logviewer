@@ -275,7 +275,50 @@ class AssetTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_create_logs(self):
+    def test_create_2_logs(self):
+        client = APIClient()
+        user = User.objects.get(username="admin")
+        user.is_staff = True
+        user.is_admin = True
+        user.is_superuser = True
+        user.save()
+        client.force_authenticate(user=user)
+        test_url = reverse("log-list")
+        pk = 1
+        severity = "Warning"
+        message = "Warning message"
+        timestamp = timezone.now()
+
+        data = [
+            {
+                "asset": pk,
+                "seqnumber": 1,
+                "timestamp": str(timestamp),
+                "severity": severity,
+                "message": message,
+            }
+            for i in range(2)
+        ]
+
+        # test auto setting sequence
+        response = client.post(
+            test_url,
+            data=data,
+            user=user,
+            format="json",
+        )
+
+        out = Log.objects.filter(
+            asset=pk,
+            seqnumber=1,
+            timestamp=timestamp,
+            severity=severity,
+            message=message,
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(out), len(data))
+
+    def test_create_many_logs(self):
         client = APIClient()
         user = User.objects.get(username="admin")
         user.is_staff = True
@@ -308,7 +351,10 @@ class AssetTestCase(APITestCase):
             format="json",
         )
 
-        stream = io.BytesIO(response.content)
-        out = JSONParser().parse(stream)
+        out = Log.objects.filter(
+            asset=pk,
+            severity=severity,
+            message=message,
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(len(out), len(data))
