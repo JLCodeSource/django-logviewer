@@ -286,20 +286,26 @@ class AssetTestCase(APITestCase):
         severity = "Warning"
         timestamp = timezone.now()
         message = "Warning message"
+        test_size = 1000
 
-        for i in range(1000):
-            # test auto setting sequence
-            response = client.post(
-                test_url,
-                data={
-                    "asset": pk,
-                    "seqnumber": i,
-                    "timestamp": str(timestamp),
-                    "severity": severity,
-                    "message": message,
-                },
-                user=user,
-                format="json",
-            )
+        data = [
+            {
+                "asset": pk,
+                "seqnumber": i,
+                "timestamp": str(timestamp),
+                "severity": severity,
+                "message": message,
+            }
+            for i in range(test_size)
+        ]
 
-            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # test auto setting sequence
+        response = client.post(
+            test_url,
+            data=json.dumps(data),
+            user=user,
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(response.json) == test_size)

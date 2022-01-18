@@ -1,9 +1,9 @@
 from django.urls import path, include
 from rest_framework.urlpatterns import format_suffix_patterns
-from rest_framework.routers import DefaultRouter
+from rest_framework_bulk.routes import BulkRouter
 from logviewer import views
 
-router = DefaultRouter()
+router = BulkRouter()
 router.register(r"assets", views.AssetViewSet)
 router.register(r"logs", views.LogViewSet)
 

@@ -1,17 +1,23 @@
 from rest_framework import serializers
+from rest_framework_bulk import (
+    BulkListSerializer,
+    BulkSerializerMixin,
+    ListBulkCreateUpdateDestroyAPIView,
+)
 from logviewer.models import (
     Asset,
     Log,
 )
 
 
-class AssetSerializer(serializers.ModelSerializer):
+class AssetSerializer(BulkSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = Asset
         fields = ["id", "name", "IP", "site", "type", "phase"]
+        list_serializer_class = BulkListSerializer
 
 
-class LogSerializer(serializers.ModelSerializer):
+class LogSerializer(BulkSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = Log
         fields = [
@@ -28,3 +34,4 @@ class LogSerializer(serializers.ModelSerializer):
             "fqdd",
             "resolved",
         ]
+        list_serializer_class = BulkListSerializer
