@@ -11,21 +11,6 @@ from logviewer.models import Asset, Log
 from logviewer.serializers import AssetSerializer, LogSerializer
 
 
-# Create your views here.
-def index(request):
-    return HttpResponse("Hello, World")
-
-
-@api_view(["GET"])
-def api_root(request, format=None):
-    return Response(
-        {
-            "assets": reverse("asset-list", request=request, format=format),
-            "logs": reverse("log-list", request=request, format=format),
-        }
-    )
-
-
 class AssetViewSet(viewsets.ModelViewSet):
     queryset = Asset.objects.all()
     serializer_class = AssetSerializer

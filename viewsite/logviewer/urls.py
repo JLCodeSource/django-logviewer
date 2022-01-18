@@ -9,7 +9,6 @@ router.register(r"logs", views.LogViewSet)
 
 
 urlpatterns = [
-    path("", views.index, name="index"),
     path("", include(router.urls)),
 ]
 
