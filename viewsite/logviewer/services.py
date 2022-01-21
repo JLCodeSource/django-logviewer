@@ -21,9 +21,11 @@ def get_lc_logs(ip, username, password):
     data = json.loads(data)
     num_logs = get_lc_log_number(data)
     print("Number of logs: %s" % num_logs)
+    logs = []
     for i in data["Members"]:
         log = get_lc_log(i)
-        print(log)
+        logs.append(log)
+    return logs
 
 
 def get_lc_log_number(data):
@@ -50,4 +52,5 @@ def get_lc_log(log):
     return json.dumps(log)
 
 
-get_lc_logs("127.0.0.1:5000", "", "")
+logs = get_lc_logs("127.0.0.1:5000", "", "")
+print(logs)
