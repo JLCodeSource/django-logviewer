@@ -13,7 +13,7 @@ from logviewer.models import (
 class AssetSerializer(BulkSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = Asset
-        fields = ["id", "name", "IP", "site", "type", "phase"]
+        fields = ["id", "name", "type", "IP", "site", "phase", "username", "password"]
         list_serializer_class = BulkListSerializer
 
 

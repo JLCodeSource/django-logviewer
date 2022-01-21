@@ -25,6 +25,8 @@ class Asset(models.Model):
     type = models.CharField(max_length=8, choices=TYPES)
     site = models.CharField(max_length=10, choices=SITES)
     phase = models.SmallIntegerField(choices=PHASES)
+    username = models.CharField(max_length=20, default="viewer")
+    password = models.CharField(max_length=32, default="viewer")
 
     def __str__(self):
         return self.name
