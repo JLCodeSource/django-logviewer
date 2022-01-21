@@ -3,6 +3,7 @@ from django.utils import timezone, dateformat
 from django.test import TestCase
 from django.contrib.auth.models import User
 from logviewer.models import Asset, Log
+from logviewer.services import get_lc_log_number
 from django.urls import reverse
 from rest_framework import status
 from rest_framework import request
@@ -358,3 +359,9 @@ class AssetTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(len(out), len(data))
+
+
+class ServicesTestCase(TestCase):
+    def test_services_get_lc_log_number(self):
+        logs = get_lc_log_number()
+        self.assertEqual(logs, 2)
