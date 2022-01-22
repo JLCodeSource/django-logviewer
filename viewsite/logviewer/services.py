@@ -36,21 +36,32 @@ def get_lc_log(log):
     odata_id = log["@odata.id"]
     name = log["Name"]
     seqnumber = log["Id"]
-    messageid = log["MessageID"]
+    message_id = log["MessageID"]
     message = log["Message"]
     created = log["Created"]
     severity = log["Severity"]
     log = {
+        "asset": 1,
         "odata_id": odata_id,
         "name": name,
         "seqnumber": seqnumber,
-        "messageid": messageid,
+        "message_id": message_id,
         "message": message,
         "created": created,
         "severity": severity,
     }
-    return json.dumps(log)
+    return log
 
 
 logs = get_lc_logs("127.0.0.1:5000", "", "")
 print(logs)
+
+headers = {"Content-type": "application/json"}
+response = requests.post(
+    "http://127.0.0.1:8000/logviewer/logs/",
+    data=json.dumps(logs),
+    auth=("bob", "P-!nNn.m-#b8ib!"),
+    headers=headers,
+)
+print(response.status_code)
+print(response.json)

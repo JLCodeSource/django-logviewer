@@ -122,7 +122,7 @@ class Log(models.Model):
     odata_id = models.CharField(max_length=255, blank=True)
     name = models.CharField(max_length=25, blank=True)
     seqnumber = models.PositiveSmallIntegerField(null=True, blank=True)
-    message_id = models.CharField(max_length=6, blank=True)
+    message_id = models.CharField(max_length=32, blank=True)
     agent_id = models.CharField(max_length=14, choices=AGENTS, blank=True)
     category = models.CharField(max_length=9, choices=CATEGORIES, blank=True)
     severity = models.CharField(max_length=8, choices=SEVERITY, blank=True)
