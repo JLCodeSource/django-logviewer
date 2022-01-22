@@ -12,7 +12,7 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Python: Django",
+            "name": "Python: Test",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/viewsite/manage.py",
