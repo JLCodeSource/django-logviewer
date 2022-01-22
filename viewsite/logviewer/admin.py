@@ -16,7 +16,7 @@ class AssetAdmin(admin.ModelAdmin):
         "name",
         "site",
         "phase",
-        "get_latest_timestamp",
+        "get_latest_created",
         "get_latest_severity",
         "get_latest_message",
     )

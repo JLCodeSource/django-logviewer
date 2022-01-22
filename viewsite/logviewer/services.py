@@ -1,26 +1,26 @@
-""" from logviewer.models import (
+from logviewer.models import (
     Asset,
     Log,
-) """
-from email.headerregistry import MessageIDHeader
+)
 import requests, json, sys, re, time, os, warnings, argparse
 from datetime import datetime
 
 
-def get_lc_logs(ip, username, password):
+def get_lc_logs(asset):
     """
     Given an asset
     when the admin checks the logs
     then the service populates the database
     and an entry is added to the system log
     """
+    ip = asset.IP
+    port = asset.port
     response = requests.get(
-        "http://%s/redfish/v1/Systems/437XR1138R2/LogServices/Log1/Entries" % ip
+        "http://%s:%s/redfish/v1/Systems/437XR1138R2/LogServices/Log1/Entries" % ip,
+        port,
     )
     data = response.content
     data = json.loads(data)
-    num_logs = get_lc_log_number(data)
-    print("Number of logs: %s" % num_logs)
     logs = []
     for i in data["Members"]:
         log = get_lc_log(i)
@@ -53,7 +53,8 @@ def get_lc_log(log):
     return log
 
 
-logs = get_lc_logs("127.0.0.1:5000", "", "")
+asset = Asset.objects.filter(name="redfish")
+logs = get_lc_logs(asset)
 print(logs)
 
 headers = {"Content-type": "application/json"}
