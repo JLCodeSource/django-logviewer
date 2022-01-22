@@ -11,6 +11,7 @@ from rest_framework.test import APITestCase, APIClient, APIRequestFactory
 from rest_framework.parsers import JSONParser
 import json
 import pytest
+import requests
 
 # Create your tests here.
 
@@ -341,6 +342,16 @@ class AssetTestCase(APITestCase):
 
 
 class ServicesTestCase(TestCase):
+    def setUp(self):
+        Asset.objects.create(
+            name="redfish",
+            IP="127.0.0.1",
+            port="5000",
+            type="SVR",
+            site="TOT",
+            phase=1,
+        )
+
     def test_services_get_lc_log_number(self):
         data = {
             "Members@odata.count": 2,
@@ -350,10 +361,10 @@ class ServicesTestCase(TestCase):
         self.assertEqual(logs, 2)
 
     def test_services_get_lc_logs(self):
-        asset = Asset.objects.filter(name="redfish")
+        asset = Asset.objects.get(name="redfish")
         logs = get_lc_logs(asset)
         headers = {"Content-type": "application/json"}
-        response = request.post(
+        response = requests.post(
             "http://127.0.0.1:8000/logviewer/logs/",
             data=json.dumps(logs),
             auth=("bob", "P-!nNn.m-#b8ib!"),

@@ -1,6 +1,5 @@
 from logviewer.models import (
     Asset,
-    Log,
 )
 import requests, json, sys, re, time, os, warnings, argparse
 from datetime import datetime
@@ -16,8 +15,8 @@ def get_lc_logs(asset):
     ip = asset.IP
     port = asset.port
     response = requests.get(
-        "http://%s:%s/redfish/v1/Systems/437XR1138R2/LogServices/Log1/Entries" % ip,
-        port,
+        "http://%s:%s/redfish/v1/Systems/437XR1138R2/LogServices/Log1/Entries"
+        % (ip, port)
     )
     data = response.content
     data = json.loads(data)
@@ -51,18 +50,3 @@ def get_lc_log(log):
         "severity": severity,
     }
     return log
-
-
-asset = Asset.objects.filter(name="redfish")
-logs = get_lc_logs(asset)
-print(logs)
-
-headers = {"Content-type": "application/json"}
-response = requests.post(
-    "http://127.0.0.1:8000/logviewer/logs/",
-    data=json.dumps(logs),
-    auth=("bob", "P-!nNn.m-#b8ib!"),
-    headers=headers,
-)
-print(response.status_code)
-print(response.json)
