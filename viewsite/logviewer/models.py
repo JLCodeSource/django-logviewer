@@ -22,7 +22,7 @@ class Asset(models.Model):
     )
     name = models.CharField(max_length=30)
     IP = models.GenericIPAddressField()
-    port = models.SmallIntegerField(blank=True)
+    port = models.SmallIntegerField(null=True)
     type = models.CharField(max_length=8, choices=TYPES)
     site = models.CharField(max_length=10, choices=SITES)
     phase = models.SmallIntegerField(choices=PHASES)
