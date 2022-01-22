@@ -3,7 +3,7 @@ from django.utils import timezone, dateformat
 from django.test import TestCase
 from django.contrib.auth.models import User
 from logviewer.models import Asset, Log
-from logviewer.services import get_lc_log_number
+from logviewer.services import get_lc_log_number, get_lc_logs
 from django.urls import reverse
 from rest_framework import status
 from rest_framework import request
@@ -24,27 +24,6 @@ class AssetModelTests(TestCase):
             site="TOT",
             phase=1,
         )
-        Asset.objects.create(
-            name="tot-n02",
-            IP="10.49.28.148",
-            type="SVR",
-            site="TOT",
-            phase=1,
-        )
-        Asset.objects.create(
-            name="psc-n01",
-            IP="10.41.28.146",
-            type="SVR",
-            site="PSC",
-            phase=1,
-        )
-        Asset.objects.create(
-            name="psc-n02",
-            IP="10.41.28.147",
-            type="SVR",
-            site="PSC",
-            phase=1,
-        )
 
     def test_asset_string_output(self):
         """
@@ -60,14 +39,14 @@ class AssetModelTests(TestCase):
         pk = 1
         severity = "Critical"
         seqnumber = 1
-        timestamp = timezone.now()
-        formatted_timestamp = dateformat.format(timestamp, "Y-M-d H:i:s")
+        created = timezone.now()
         message = "Critical message"
+        formatted_created = dateformat.format(created, "Y-M-d H:i:s")
         asset = Asset.objects.get(pk=pk)
         log = Log.objects.create(
             asset=asset,
             seqnumber=seqnumber,
-            timestamp=timestamp,
+            created=created,
             severity=severity,
             message=message,
         )
@@ -75,7 +54,7 @@ class AssetModelTests(TestCase):
         id = log.id
 
         out = (
-            str(formatted_timestamp)
+            str(formatted_created)
             + ": Id:"
             + str(id)
             + " Seq:"
@@ -97,24 +76,24 @@ class AssetModelTests(TestCase):
         pk = 1
         severity = "Critical"
         seqnumber = 1
-        timestamp = timezone.now()
+        created = timezone.now()
         message = "Critical message"
         asset = Asset.objects.get(pk=pk)
         log = Log.objects.create(
             asset=asset,
             seqnumber=seqnumber,
-            timestamp=timestamp,
+            created=created,
             severity=severity,
             message=message,
         )
         log.save()
 
         seqnumber = 2
-        timestamp = timezone.now()
+        created = timezone.now()
         log = Log.objects.create(
             asset=asset,
             seqnumber=seqnumber,
-            timestamp=timestamp,
+            created=created,
             severity=severity,
             message=message,
         )
@@ -130,23 +109,23 @@ class AssetModelTests(TestCase):
         pk = 1
         severity = "Critical"
         seqnumber = 1
-        timestamp = timezone.now()
+        created = timezone.now()
         message = "Critical message"
         asset = Asset.objects.get(pk=pk)
         log = Log.objects.create(
             asset=asset,
             seqnumber=seqnumber,
-            timestamp=timestamp,
+            created=created,
             severity=severity,
             message=message,
         )
         log.save()
-        timestamp = timezone.now()
+        created = timezone.now()
         resolved = True
         resolved_log = Log.objects.create(
             asset=asset,
             seqnumber=seqnumber,
-            timestamp=timestamp,
+            created=created,
             severity=severity,
             message=message,
             resolved=resolved,
@@ -164,22 +143,22 @@ class AssetModelTests(TestCase):
         pk = 1
         severity = "Warning"
         seqnumber = 1
-        timestamp = timezone.now()
+        created = timezone.now()
         message = "Warning message"
         asset = Asset.objects.get(pk=pk)
         log = Log.objects.create(
             asset=asset,
             seqnumber=seqnumber,
-            timestamp=timestamp,
+            created=created,
             severity=severity,
             message=message,
         )
         log.save()
-        timestamp = timezone.now()
+        created = timezone.now()
         resolved_log = Log.objects.create(
             asset=asset,
             seqnumber=seqnumber,
-            timestamp=timestamp,
+            created=created,
             severity="Critical",
             message=message,
             resolved=True,
@@ -197,23 +176,23 @@ class AssetModelTests(TestCase):
         pk = 1
         severity = "Warning"
         seqnumber = 1
-        timestamp = timezone.now()
+        created = timezone.now()
         message = "Information message"
         asset = Asset.objects.get(pk=pk)
         log = Log.objects.create(
             asset=asset,
             seqnumber=seqnumber,
-            timestamp=timestamp,
+            created=created,
             severity=severity,
             message=message,
             resolved=True,
         )
         log.save()
-        timestamp = timezone.now()
+        created = timezone.now()
         resolved_log = Log.objects.create(
             asset=asset,
             seqnumber=seqnumber,
-            timestamp=timestamp,
+            created=created,
             severity="Info",
             message=message,
         )
@@ -235,7 +214,7 @@ class AssetTestCase(APITestCase):
         Log.objects.create(
             asset=asset,
             seqnumber=1,
-            timestamp=timezone.now(),
+            created=timezone.now(),
             severity="Info",
             message="information message",
         )
@@ -258,7 +237,7 @@ class AssetTestCase(APITestCase):
         test_url = reverse("log-list")
         pk = 1
         severity = "Warning"
-        timestamp = timezone.now()
+        created = timezone.now()
         message = "Warning message"
 
         response = client.post(
@@ -266,7 +245,7 @@ class AssetTestCase(APITestCase):
             data={
                 "asset": pk,
                 "seqnumber": 1,
-                "timestamp": str(timestamp),
+                "created": str(created),
                 "severity": severity,
                 "message": message,
             },
@@ -288,13 +267,13 @@ class AssetTestCase(APITestCase):
         pk = 1
         severity = "Warning"
         message = "Warning message"
-        timestamp = timezone.now()
+        created = timezone.now()
 
         data = [
             {
                 "asset": pk,
                 "seqnumber": 1,
-                "timestamp": str(timestamp),
+                "created": str(created),
                 "severity": severity,
                 "message": message,
             }
@@ -312,7 +291,7 @@ class AssetTestCase(APITestCase):
         out = Log.objects.filter(
             asset=pk,
             seqnumber=1,
-            timestamp=timestamp,
+            created=created,
             severity=severity,
             message=message,
         )
@@ -337,7 +316,7 @@ class AssetTestCase(APITestCase):
             {
                 "asset": pk,
                 "seqnumber": i,
-                "timestamp": str(timezone.now()),
+                "created": str(timezone.now()),
                 "severity": severity,
                 "message": message,
             }
@@ -363,5 +342,21 @@ class AssetTestCase(APITestCase):
 
 class ServicesTestCase(TestCase):
     def test_services_get_lc_log_number(self):
-        logs = get_lc_log_number()
+        data = {
+            "Members@odata.count": 2,
+            "Name": "Log Service Collection",
+        }
+        logs = get_lc_log_number(data)
         self.assertEqual(logs, 2)
+
+    def test_services_get_lc_logs(self):
+        asset = Asset.objects.filter(name="redfish")
+        logs = get_lc_logs(asset)
+        headers = {"Content-type": "application/json"}
+        response = request.post(
+            "http://127.0.0.1:8000/logviewer/logs/",
+            data=json.dumps(logs),
+            auth=("bob", "P-!nNn.m-#b8ib!"),
+            headers=headers,
+        )
+        self.assertEqual(response.status_code, 201)
