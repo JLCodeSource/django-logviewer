@@ -22,11 +22,12 @@ class Asset(models.Model):
     )
     name = models.CharField(max_length=30)
     IP = models.GenericIPAddressField()
+    port = models.SmallIntegerField(blank=True)
     type = models.CharField(max_length=8, choices=TYPES)
     site = models.CharField(max_length=10, choices=SITES)
     phase = models.SmallIntegerField(choices=PHASES)
-    username = models.CharField(max_length=20, default="viewer")
-    password = models.CharField(max_length=32, default="viewer")
+    username = models.CharField(max_length=20, default="", blank=True)
+    password = models.CharField(max_length=32, default="", blank=True)
 
     def __str__(self):
         return self.name
@@ -66,14 +67,14 @@ class Asset(models.Model):
             log = Log.objects.filter(id=logid).latest()
             return log.severity
 
-    @admin.display(description="timestamp")
-    def get_latest_timestamp(self):
+    @admin.display(description="created")
+    def get_latest_created(self):
         logid = self.get_latest_log()
         if logid == -1:
             return "-"
         else:
             log = Log.objects.filter(id=logid).latest()
-            return log.timestamp
+            return log.created
 
     @admin.display(description="message")
     def get_latest_message(self):
@@ -133,13 +134,13 @@ class Log(models.Model):
     resolved = models.BooleanField(default=False)
 
     class Meta:
-        get_latest_by = "timestamp"
+        get_latest_by = "created"
 
     def __str__(self):
-        timestamp = self.timestamp
-        formatted_timestamp = dateformat.format(timestamp, "Y-M-d H:i:s")
+        created = self.created
+        formatted_created = dateformat.format(created, "Y-M-d H:i:s")
         out = (
-            formatted_timestamp
+            formatted_created
             + ": Id:"
             + str(self.id)
             + " Seq:"
