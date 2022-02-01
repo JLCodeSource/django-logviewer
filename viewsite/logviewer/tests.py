@@ -223,7 +223,7 @@ class AssetTestCase(APITestCase):
 
     def test_get_logs(self):
         client = APIClient()
-        test_url = "http://127.0.0.1:8000/logviewer/logs/"
+        test_url = reverse("log-list")
         response = client.get(test_url, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -341,16 +341,17 @@ class AssetTestCase(APITestCase):
         self.assertEqual(len(out), len(data))
 
 
-class ServicesTestCase(TestCase):
+class ServicesTestCase(APITestCase):
     def setUp(self):
         Asset.objects.create(
             name="redfish",
             IP="127.0.0.1",
             port="5000",
-            type="SVR",
+            type="TST",
             site="TOT",
             phase=1,
         )
+        User.objects.create_user("admin", "admin@admin.com", "admin")
 
     def test_services_get_lc_log_number(self):
         data = {
@@ -361,13 +362,25 @@ class ServicesTestCase(TestCase):
         self.assertEqual(logs, 2)
 
     def test_services_get_lc_logs(self):
+        client = APIClient()
+        user = User.objects.get(username="admin")
+        user.is_staff = True
+        user.is_admin = True
+        user.is_superuser = True
+        user.save()
+        client.force_authenticate(user=user)
+
         asset = Asset.objects.get(name="redfish")
         logs = get_lc_logs(asset)
+
+        test_url = reverse("log-list")
         headers = {"Content-type": "application/json"}
-        response = requests.post(
-            "http://127.0.0.1:8000/logviewer/logs/",
-            data=json.dumps(logs),
-            auth=("bob", "P-!nNn.m-#b8ib!"),
+
+        response = client.post(
+            test_url,
+            data=logs,
+            user=user,
             headers=headers,
+            format="json",
         )
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)

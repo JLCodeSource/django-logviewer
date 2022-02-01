@@ -11,6 +11,7 @@ class Asset(models.Model):
         ("SVR", "Server"),
         ("STR", "Storage"),
         ("SWT", "Switch"),
+        ("TST", "Test"),
     )
     SITES = (
         ("TOT", "Totowa"),
