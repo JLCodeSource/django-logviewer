@@ -106,6 +106,7 @@ class Log(models.Model):
         ("RACADM", "RACADM"),
         ("iDRAC_GUI", "iDRAC_GUI"),
         ("CMC", "CMC"),
+        ("Oem", "Oem"),
     )
     CATEGORIES = (
         ("System", "System"),
@@ -118,7 +119,7 @@ class Log(models.Model):
     SEVERITY = (
         ("Critical", "Critical"),
         ("Warning", "Warning"),
-        ("Info", "Info"),
+        ("OK", "OK"),
     )
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
     odata_id = models.CharField(max_length=255, blank=True)
