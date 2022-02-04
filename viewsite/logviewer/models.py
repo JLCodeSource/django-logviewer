@@ -51,7 +51,7 @@ class Asset(models.Model):
         for bool in [False, True]:
             logs = Log.objects.filter(
                 asset=self,
-                severity="Info",
+                severity="OK",
                 resolved=bool,
             )
             if logs.exists():

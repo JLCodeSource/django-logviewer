@@ -384,3 +384,38 @@ class ServicesTestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_services_get_lc_logs_ignore_existing(self):
+        client = APIClient()
+        user = User.objects.get(username="admin")
+        user.is_staff = True
+        user.is_admin = True
+        user.is_superuser = True
+        user.save()
+        client.force_authenticate(user=user)
+
+        asset = Asset.objects.get(name="redfish")
+        logs = get_lc_logs(asset)
+        max_log = 0
+        for log in logs:
+            m = max(log["seqnumber"])
+            m = int(m)
+            if m > max_log:
+                max_log = m
+
+        test_url = reverse("log-list")
+        headers = {"Content-type": "application/json"}
+
+        response = client.post(
+            test_url,
+            data=logs,
+            user=user,
+            headers=headers,
+            format="json",
+        )
+
+        latest_log = Log.objects.filter(asset=asset, seqnumber=max_log)
+        if latest_log.exists:
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        else:
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
